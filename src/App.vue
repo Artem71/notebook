@@ -23,4 +23,19 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
+
+
+
+
+@media (max-width: 768px) { 
+  body {
+    font-size: 14px
+  }
+ }
+
+ @media (max-width: 425px) { 
+  body {
+    font-size: 12px
+  }
+ }
 </style>

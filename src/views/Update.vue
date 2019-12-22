@@ -22,6 +22,7 @@
             id="recordText"
             v-model="text"
             :disabled="!update"
+            rows="10"
           ></textarea>
           <div class="invalid-tooltip">Поле не должно быть пустым.</div>
         </div>
@@ -30,23 +31,30 @@
             v-if="!update" 
             type="button" 
             @click="updateRecord" 
-            class="btn btn-warning"
+            class="btn btn-warning mb-2"
           >
-            Обновить запись
+            Редактировать запись
           </button>
           <button 
             v-else 
             type="submit" 
             @click="saveChangeRecord"
-            class="btn btn-success"
+            class="btn btn-success mb-2"
           >
-            Сохранить обновление
+            Сохранить изменения
+          </button>
+          <button
+            type="button" 
+            @click="deleteRecord"
+            class="btn btn-danger ml-2 mb-2"
+          >
+            Удалить запись
           </button>
           <router-link 
             tag="button"
             to="/"
             type="button" 
-            class="btn btn-primary ml-2"
+            class="btn btn-primary ml-2 mb-2"
           >
             На главную
           </router-link>
@@ -62,7 +70,8 @@ import datepicker from 'vue-date-picker'
 export default {
   data: () => ({
     invalid: false,
-    update: false
+    update: false,
+    warning: false
   }),
   computed: {
     id() {
@@ -70,7 +79,11 @@ export default {
     },
     date: {
       get() {
-        return this.$store.getters.records[this.id].date
+        const record = this.$store.getters.records.filter(r => {
+          return r.id == this.id
+        })
+        
+        return record[0].date
       },
       set() {
         const record = {
@@ -84,16 +97,20 @@ export default {
     },
     text: {
       get() {
-        return this.$store.getters.records[this.id].text
+        const record = this.$store.getters.records.filter(r => {
+          return r.id == this.id
+        })
+
+        return record[0].text
       }, 
       set(newText) {
-        const record = {
+        const updateRecord = {
           id: this.id,
+          date: this.date,
           text: newText
         }
 
-        console.log(newText)
-        return this.$store.commit('updateTextRecord', record)
+        this.$store.commit('updateRecord', updateRecord)
       }
     }
   },
@@ -111,19 +128,27 @@ export default {
       this.update = true
     },
     saveChangeRecord() {
-      this.update = false
+      if (this.text && this.text.length < 1024) {
+        this.update = false
 
-      const newData = {
-        id: this.$route.params.id,
-        date: this.$refs.date.pickedValue,
-        text: this.text
+        const newData = {
+          id: this.id,
+          date: this.$refs.date.pickedValue,
+          text: this.text
+        }
+
+        this.$store.dispatch('updateRecord', newData)
+      } else {
+        this.invalid = true
       }
+      
+    },
+    deleteRecord() {
+      const id = this.id
 
-      this.$store.commit('updateRecord', newData)
+      this.$store.dispatch('deleteRecord', id)
+      this.$router.push('/')
     }
-  },
-  mounted() {
-    this.$refs.date.value = this.date
   },
   components: {datepicker}
 }

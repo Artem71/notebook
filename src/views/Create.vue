@@ -2,9 +2,10 @@
   <div class="row">
     <div class="col-md-6 offset-md-3 mt-5">
       <form @submit.prevent="addRecord">
-        <div class="form-group">
-          <label for="recordDate">Введите дату для записи</label>
+        <div class="form-group position-relative">
+          <label class="d-block" for="recordDate">Введите дату для записи</label>
           <datepicker 
+            @input="resetInvalidDate"
             id="recordDate"
             name="create-date" 
             format="DD.MM.YYYY"
@@ -12,21 +13,22 @@
             ref="date"
             type="date"
             :input-attr="{ 'autocomplete': 'off' }"
+            :input-class="{'is-invalid form-control border-danger': invalidDate}"
           />
+          <div class="invalid-tooltip">Поле обязательное для заполнения.</div>
         </div>
           
         <div class="form-group position-relative">
           <label for="recordText">Введите текст записи</label>
           <textarea 
-            @blur="checkLength"
-            @input="resetInvalid"
+            @input="resetInvalidText"
             class="form-control" 
-            :class="{'is-invalid': invalid}"
+            :class="{'is-invalid': invalidText}"
             id="recordText" 
-            rows="5" 
+            rows="10" 
             v-model="text"
           ></textarea>
-          <div class="invalid-tooltip">Поле не должно быть пустым.</div>
+          <div class="invalid-tooltip">Поле обязательное для заполнения.</div>
         </div>
         <div class="mt-5">
           <button type="submit" class="btn btn-success">Добавить запись</button>
@@ -49,9 +51,9 @@ import datepicker from 'vue-date-picker'
 
 export default {
   data: () => ({
-    id: 0,
     text: '',
-    invalid: false
+    invalidDate: false,
+    invalidText: false
   }),
   computed: {
     date() {
@@ -62,31 +64,35 @@ export default {
     disabledDate (date) {
       return date.getTime() < (Date.now() - (86400 * 1000))
     },
-    checkLength() {
-      this.invalid = !this.text.length ? true : false
+    checkValidDate() {
+      if (!this.date) this.invalidDate = true
     },
-    resetInvalid() {
-      this.invalid = false
+    checkValidText() {
+      if (!this.text.length || this.text.length > 1024) this.invalidText = true
     },
-    addRecord() {
-      if (this.date && this.text) {
-        const record = {
-          id: this.id,
-          date: this.date,
-          createDate: Date.now(),
-          text: this.text
+    resetInvalidDate() {
+      if (this.$date) this.invalidDate = false
+    },
+    resetInvalidText() {
+      this.invalidText = false
+    },
+    async addRecord() {
+      try {
+        if (this.date && this.text) {
+          const record = {
+            date: this.date,
+            text: this.text
+          }
+
+          await this.$store.dispatch('addRecord', record)
+          this.$router.push('/')
+        } else {
+          this.checkValidDate()
+          this.checkValidText()
         }
-
-        this.$store.commit('addRecord', record)
-
-        this.id++
-        this.$refs.date.pickedValue = ''
-        this.text = ''
-        this.$router.push('/')
-      } else {
-        console.log('invalid')
+      } catch (e) {
+        throw e
       }
-      
     }
   },
   components: {datepicker}
