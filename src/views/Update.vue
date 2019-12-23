@@ -24,9 +24,16 @@
             :disabled="!update"
             rows="10"
           ></textarea>
-          <div class="invalid-tooltip">Поле не должно быть пустым.</div>
+          <small 
+            id="passwordHelpBlock" 
+            class="form-text  text-right"
+            :class="{'text-danger': text.length > 1024}"
+          >
+            {{text.length}} / 1024
+          </small>
+          <div class="invalid-tooltip">Поле обязательное для заполнения и не должно превышать 1024 символа</div>
         </div>
-        <div class="mt-5">
+        <div class="mt-5 pt-2">
           <button 
             v-if="!update" 
             type="button" 

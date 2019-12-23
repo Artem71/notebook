@@ -51,8 +51,6 @@ export default new Vuex.Store({
       try {
         const records = await axios.get('http://localhost:3000/api/records')
         await commit('setRecords', records.data)
-
-        //getters.socket.emit('get-all-records', getters.records)
       } catch (e) {
         throw e
       }

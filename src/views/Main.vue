@@ -22,7 +22,7 @@
             :key="i"
             :to="'/update/' + rec.id"
             href="#" 
-            class="list-group-item list-group-item-action border border-primary"
+            class="list-group-item list-group-item-action border border-primary mb-1"
           >
             <div class="d-flex w-100 justify-content-between">
               <h5 class="mb-1">{{rec.date}}</h5>

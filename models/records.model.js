@@ -15,7 +15,7 @@ const Record = sequelize.define("records", {
     allowNull: false
   },
   text: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: false
   }
 });

@@ -5,6 +5,11 @@ exports.addRecord = (req, res) => {
   const date = req.body.date
   const text = req.body.text
   
+  if (text.length > 1024) {
+    res.send('limit')
+    return
+  }
+
   Record.create({date, text})
     .then(r => res.send(r.status))
     .catch(e => console.log(e))
@@ -20,6 +25,11 @@ exports.updateRecord = (req, res) => {
   const id = req.body.id
   const newDate = req.body.date
   const newText = req.body.text
+
+  if (newText.length > 1024) {
+    res.send('limit')
+    return
+  }
 
   Record.update({
     date: newDate,
